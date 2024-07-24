@@ -27,17 +27,24 @@ public class PersonDataAccessService implements PersonDao{
     @Override
     public List<Person> selectAllPeople() {
         final String sql = "SELECT id, name FROM person";
-        jdbcTemplate.query(
+        return jdbcTemplate.query(
                 sql, (resultSet, i) -> {
                     return new Person(UUID.fromString(resultSet.getString("id")),resultSet.getString("name"));
                 }
         );
-        return List.of(new Person(UUID.randomUUID(), "FROM POSTGRES DB"));
     }
 
     @Override
     public Optional<Person> selectPersonById(UUID id) {
-        return Optional.empty();
+        final String sql = "SELECT id, name FROM person WHERE id = ?";
+
+        Person person = jdbcTemplate.queryForObject(
+                sql, new Object[]{id}, (resultSet, i) -> {
+                    return new Person(UUID.fromString(resultSet.getString("id")),resultSet.getString("name"));
+                }
+        );
+
+        return Optional.ofNullable(person);
     }
 
     @Override
